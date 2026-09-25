@@ -4,7 +4,10 @@ from dataclasses import dataclass
 
 st.set_page_config(page_title="Prediction Market Demo", page_icon="🏁", layout="wide")
 
-B = 1000.0
+CAPITALE_LP = 10_000.0
+RISCHIO_LP_PCT = 0.10
+RISCHIO_LMSR_MAX = CAPITALE_LP * RISCHIO_LP_PCT
+B = RISCHIO_LMSR_MAX / math.log(2)
 FEE = 0.01
 
 def lse(a,b):
@@ -37,7 +40,7 @@ def shares_for_budget(side,gross,qy,qn,b=B):
 
 if "qy" not in st.session_state:
     st.session_state.update(qy=0.0, qn=0.0, cash=10000.0, yes=0.0, no=0.0,
-                            volume=0.0, fees=0.0, lp=1000.0, cashin=0.0,
+                            volume=0.0, fees=0.0, lp=CAPITALE_LP, cashin=0.0,
                             history=[0.5], result=None, votes=[])
 
 st.title("🏁 Prediction Market — Demo LMSR")
@@ -92,7 +95,10 @@ Slippage vs prezzo iniziale: **{(avg-current)*100:+.2f} cent**""")
         st.markdown("#### Come leggere il mercato")
         st.write("YES e NO sommano sempre a $1. L'LMSR modifica il prezzo mentre l'ordine viene eseguito: ordini grandi generano più slippage.")
         st.markdown("#### Parametri")
-        st.write(f"Liquidità LMSR **b = {B:,.0f}**")
+        st.write(f"Capitale LP iniziale **${CAPITALE_LP:,.2f}**")
+        st.write(f"Rischio LMSR massimo impostato **{RISCHIO_LP_PCT:.0%} = ${RISCHIO_LMSR_MAX:,.2f}**")
+        st.write(f"Parametro LMSR calcolato automaticamente **b = {B:,.2f}**")
+        st.caption("Formula: b = rischio massimo / ln(2)")
         st.write(f"Fee trading **{FEE:.0%}**")
         st.write("Chiusura: **demo manuale**")
         st.write("Resolution: **consenso Oracle 3/5**")
@@ -114,9 +120,10 @@ with tab3:
     margin=assets-worst
     x1,x2,x3,x4=st.columns(4)
     x1.metric("Collateral LP",f"${st.session_state.lp:,.2f}")
-    x2.metric("Asset garanzia",f"${assets:,.2f}")
-    x3.metric("Passività max",f"${worst:,.2f}")
-    x4.metric("Margine",f"${margin:,.2f}")
+    x2.metric("Rischio LMSR max",f"${RISCHIO_LMSR_MAX:,.2f}", f"{RISCHIO_LP_PCT:.0%} LP")
+    x3.metric("Parametro b",f"{B:,.2f}")
+    x4.metric("Margine solvibilità",f"${margin:,.2f}")
+    st.caption(f"Bound teorico LMSR: b × ln(2) = ${B * math.log(2):,.2f}. Le fee e altri rischi operativi sono separati.")
     st.progress(min(max(assets/(worst if worst else assets),0),1) if assets else 0)
     st.write("Stato solvibilità:", "✅ **SOLVIBILE**" if margin>=-1e-8 else "❌ **INSOLVENTE**")
     st.divider()
