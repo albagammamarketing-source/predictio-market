@@ -10,6 +10,33 @@ RISCHIO_LMSR_MAX = CAPITALE_LP * RISCHIO_LP_PCT
 B = RISCHIO_LMSR_MAX / math.log(2)
 FEE = 0.01
 
+MERCATI_DEMO = {
+    "🏎️ Sport": [
+        "La Ferrari vincerà il prossimo Gran Premio?",
+        "La squadra di casa vincerà la finale?",
+    ],
+    "🏛️ Politica": [
+        "Il Parlamento approverà il provvedimento indicato entro la data di scadenza?",
+        "L'affluenza ufficiale alla consultazione supererà il 60%?",
+    ],
+    "📰 Cronaca / Attualità": [
+        "L'evento annunciato sarà confermato ufficialmente entro la data prevista?",
+        "L'autorità competente pubblicherà il provvedimento entro fine mese?",
+    ],
+    "🛢️ Materie prime": [
+        "Il petrolio Brent chiuderà sopra $100 alla data di scadenza?",
+        "L'oro chiuderà sopra la soglia indicata alla data di scadenza?",
+    ],
+    "📈 Economia": [
+        "L'inflazione italiana ufficiale sarà almeno del 3% nella prossima rilevazione?",
+        "La banca centrale manterrà invariato il tasso nella prossima riunione?",
+    ],
+    "💻 Tecnologia": [
+        "L'azienda annuncerà ufficialmente il nuovo prodotto entro fine anno?",
+        "Il prodotto sarà disponibile al pubblico entro la data indicata?",
+    ],
+}
+
 def lse(a,b):
     m=max(a,b)
     return m+math.log(math.exp(a-m)+math.exp(b-m))
@@ -43,10 +70,17 @@ if "qy" not in st.session_state:
                             volume=0.0, fees=0.0, lp=CAPITALE_LP, cashin=0.0,
                             history=[0.5], result=None, votes=[])
 
+st.sidebar.header("🌐 Mercati Demo")
+categoria = st.sidebar.selectbox("Settore", list(MERCATI_DEMO.keys()))
+domanda = st.sidebar.selectbox("Mercato", MERCATI_DEMO[categoria])
+st.sidebar.caption("Gli esempi sono dimostrativi. La risoluzione reale richiederebbe regole e fonti ufficiali definite per ogni mercato.")
+
 st.title("🏁 Prediction Market — Demo LMSR")
 st.caption("Prototipo dimostrativo locale • denaro virtuale • nessuna blockchain reale")
 
 py,pn=prices(st.session_state.qy,st.session_state.qn)
+
+st.caption(f"Categoria selezionata: **{categoria}**")
 
 c1,c2,c3,c4=st.columns(4)
 c1.metric("YES — Ferrari", f"${py:.4f}", f"{py*100:.2f}%")
@@ -54,7 +88,7 @@ c2.metric("NO — Ferrari", f"${pn:.4f}", f"{pn*100:.2f}%")
 c3.metric("Volume", f"${st.session_state.volume:,.2f}")
 c4.metric("Saldo virtuale", f"${st.session_state.cash:,.2f}")
 
-st.subheader("🏎️ La Ferrari vincerà il prossimo Gran Premio?")
+st.subheader(domanda)
 st.line_chart({"YES": st.session_state.history}, height=220)
 
 tab1,tab2,tab3=st.tabs(["💹 Trading","👤 Le mie posizioni","🛡️ Admin / Oracle"])
