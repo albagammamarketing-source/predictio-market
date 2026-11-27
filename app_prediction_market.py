@@ -83,8 +83,10 @@ py,pn=prices(st.session_state.qy,st.session_state.qn)
 st.caption(f"Categoria selezionata: **{categoria}**")
 
 c1,c2,c3,c4=st.columns(4)
-c1.metric("YES — Ferrari", f"${py:.4f}", f"{py*100:.2f}%")
-c2.metric("NO — Ferrari", f"${pn:.4f}", f"{pn*100:.2f}%")
+c1.metric("YES — Ferrari", f"{py:.2%}".replace(".", ","))
+c1.caption(f"Prezzo per contratto: ${py:.4f}")
+c2.metric("NO — Ferrari", f"{pn:.2%}".replace(".", ","))
+c2.caption(f"Prezzo per contratto: ${pn:.4f}")
 c3.metric("Volume", f"${st.session_state.volume:,.2f}")
 c4.metric("Saldo virtuale", f"${st.session_state.cash:,.2f}")
 
