@@ -105,6 +105,11 @@ with tab1:
         current=py if side=="YES" else pn
         final=npy if side=="YES" else npn
         avg=net/sh if sh else 0
+        payout = sh
+        with st.container(border=True):
+            st.metric(f"Incasso totale se vince {side}", f"${payout:,.2f}")
+            st.write(f"Guadagno netto se vince {side}: **{payout - amount:+,.2f} $**")
+            st.caption(f"Se vince l'altro esito, perdi ${amount:,.2f}.")
         st.info(f"""**Anteprima ordine**
 
 Contratti stimati: **{sh:,.4f} {side}**  
